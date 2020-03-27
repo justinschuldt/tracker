@@ -8,7 +8,10 @@ const layout = {
   wrapperCol: { span: 16 },
 };
 const tailLayout = {
-  wrapperCol: { offset: 8, span: 16 },
+  wrapperCol: { 
+    offset: 4, 
+    span: 16
+  },
 };
 
 interface ModalFormProps {
