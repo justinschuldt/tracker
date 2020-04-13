@@ -26,27 +26,42 @@ export const ChartDemo = (props: ChartDempProps) => {
     const [recordIdCounter, setRecordIdCounter] = useState<number>(0)
     const [showTryMePopover, setShowTryMePopover] = useState<boolean>(false)
 
-    // this function modifies state to mock user interaction with the form.
-    // the return function
-    const mockedInteractionDemo = (intervalMilliseconds: number) =>
-        (recordAmount: number, amountIndex: number) =>
-            setTimeout(async () => {
-                const recordId = amountIndex + 1
-                // type the number into the form
-                form.setFieldsValue({ amount: recordAmount })
-                await wait(800)
 
-                // press submit, loading symbol shows
-                setLoading(true)
-                addRecord(recordAmount, recordId)
-                await wait(600)
 
-                // clear loading, clear form value
-                form.setFieldsValue({ amount: undefined })
-                setLoading(false)
-            }, (intervalMilliseconds * (amountIndex + 1)))
-
+    const addRecord = (recordAmount: number, recordId: number) => {
+        // creates a  record object and adds it to state.
+        // created to be used in a map function, recordId is the index
+        const newRecord = {
+            id: recordId,
+            seriesId: 1,
+            timestamp: new Date().toISOString(),
+            amount: recordAmount
+        }
+        setRecords(r =>[...r, newRecord])
+        const newRecordId = recordId + 1
+        setRecordIdCounter(newRecordId)
+    }
     useEffect(() => {
+        // TODO - find how to move this function elsewhere.
+        // currently here to fix eslint: react-hooks/exhaustive-deps
+        const mockedInteractionDemo = (intervalMilliseconds: number) =>
+            (recordAmount: number, amountIndex: number) =>
+                setTimeout(async () => {
+                    // this function modifies state to mock user interaction.
+                    const recordId = amountIndex + 1
+                    // type the number into the form
+                    form.setFieldsValue({ amount: recordAmount })
+                    await wait(800)
+
+                    // press submit, loading symbol shows
+                    setLoading(true)
+                    addRecord(recordAmount, recordId)
+                    await wait(600)
+
+                    // clear loading, clear form value
+                    form.setFieldsValue({ amount: undefined })
+                    setLoading(false)
+                }, (intervalMilliseconds * (amountIndex + 1)))
         forceUpdate({}) // to disable form button
         const demoCycleMilliseconds = 4000
         const [firstRecord, ...demoValues] = sampleData
@@ -60,21 +75,8 @@ export const ChartDemo = (props: ChartDempProps) => {
         return function cleanup() {
             intervals.map(clearInterval) // use useInterval?
         }
-    }, [])
+    }, [form])
 
-    const addRecord = (recordAmount: number, recordId: number) => {
-        // creates a  record object and adds it to state.
-        // created to be used in a map function, recordId is the index
-        const newRecord = {
-            id: recordId,
-            seriesId: 1,
-            timestamp: new Date().toISOString(),
-            amount: recordAmount
-        }
-        setRecords([...records, newRecord])
-        const newRecordId = recordId + 1
-        setRecordIdCounter(newRecordId)
-    }
 
     const onFinish = (values: { amount?: string }) => {
         // form submission - create a new record, add it to state for chart
