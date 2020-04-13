@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { useParams, useHistory, Link } from "react-router-dom"
+import { useParams, useHistory } from "react-router-dom"
 import { Form, Input, Button, Typography, Spin } from 'antd';
 import { db } from '../data/local-db'
 import { RecordsDynamicLineChart } from '../components/chart/RecordsDynamicLineChart'
@@ -25,58 +25,7 @@ const SeriesDetails = () => {
     let { id } = useParams()
     const history = useHistory()
 
-    useEffect(() => {
-        setState(id)
-    }, [id])
-
-    const setState = async (newId?: string | number) => {
-        setRecords([])
-        setSeries(undefined)
-        setUnitName(undefined)
-        setLoading(true)
-        forceUpdate({})
-        loadSeries(newId)
-    }
-    const refreshData = () => {
-        setState(id)
-    }
-
-    const onFinish = async (values: { amount?: string }) => {
-        if (!values.amount) {
-            return // shouldn't happen. for TS
-        }
-
-        const newRecord = {
-            seriesId: Number(id),
-            timestamp: new Date().toISOString(),
-            amount: values.amount
-        }
-        const recordId = await db.records.add(newRecord)
-        const updatedRecords = [...records, { id: recordId, ...newRecord }]
-        setRecords(updatedRecords)
-
-        form.resetFields() // clear form
-        if (inputEl && inputEl.current) {
-            inputEl.current.focus() // set focus on input
-        }
-    };
-    const loadSeries = async (seriesId?: number | string) => {
-        let series = await db.series.get(Number(seriesId))
-        if (!seriesId || !series) {
-            // no seriesId was passed in, see if there is a series to load
-            const allSeries = await db.series.toArray()
-            if (!allSeries || !allSeries[0]) {
-                // nothing to load, send user to landing page
-                history.push('/')
-            }
-            if (allSeries[0] && allSeries[0].id) {
-                seriesId = allSeries[0].id
-                series = allSeries[0]
-                history.push(`/series-details/${seriesId}`)
-                setState(seriesId)
-            }
-            return
-        }
+    const loadAndSetSeries = async (series: ISeries) => {
         const { id, timestamp, name, unitId } = series
         setSeries(series)
         const seriesClass = new Series(name, undefined, unitId, id, timestamp)
@@ -94,12 +43,100 @@ const SeriesDetails = () => {
             setRecords(accum)
             return accum
         }, [])
-
+    }
+    const focusInput = () => {
         if (inputEl && inputEl.current) {
             inputEl.current.focus()
         }
-
     }
+    useEffect(() => {
+        // setState(id)
+        const loadSeries = async (seriesId?: number | string) => {
+            setRecords([])
+            setSeries(undefined)
+            setUnitName(undefined)
+            setLoading(true)
+            forceUpdate({})
+            let series = await db.series.get(Number(seriesId))
+            if (!seriesId || !series) {
+                // no seriesId was passed in, see if there is a series to load
+                const allSeries = await db.series.toArray()
+                if (!allSeries || !allSeries[0]) {
+                    // nothing to load, send user to landing page
+                    history.push('/')
+                }
+                if (allSeries[0] && allSeries[0].id) {
+                    seriesId = allSeries[0].id
+                    series = allSeries[0]
+                    history.replace(`/series-details/${seriesId}`)
+                    loadSeries(seriesId)
+                }
+                return
+            }
+            await loadAndSetSeries(series)
+    
+            if (inputEl && inputEl.current) {
+                inputEl.current.focus()
+            }
+    
+        }
+        // setRecords([])
+        // setSeries(undefined)
+        // setUnitName(undefined)
+        // setLoading(true)
+        // forceUpdate({})
+        loadSeries(id)
+    }, [id, history])
+
+    const refreshData = (newId?: string) => {
+        // TODO cleanup this dupe logic, share with useEffect
+        const loadSeries = async (seriesId?: number | string) => {
+            setRecords([])
+            setSeries(undefined)
+            setUnitName(undefined)
+            setLoading(true)
+            forceUpdate({})
+            let series = await db.series.get(Number(seriesId))
+            if (!seriesId || !series) {
+                // no seriesId was passed in, see if there is a series to load
+                const allSeries = await db.series.toArray()
+                if (!allSeries || !allSeries[0]) {
+                    // nothing to load, send user to landing page
+                    history.push('/')
+                }
+                if (allSeries[0] && allSeries[0].id) {
+                    seriesId = allSeries[0].id
+                    series = allSeries[0]
+                    history.replace(`/series-details/${seriesId}`)
+                    loadSeries(seriesId)
+                }
+                return
+            }
+            await loadAndSetSeries(series)
+            focusInput()
+        }
+        const toLoad = newId ? newId : id
+        loadSeries(toLoad)
+    }
+
+    const onFinish = async (values: { amount?: string }) => {
+        if (!values.amount) {
+            return // shouldn't happen. for TS
+        }
+
+        const newRecord = {
+            seriesId: Number(id),
+            timestamp: new Date().toISOString(),
+            amount: values.amount
+        }
+        const recordId = await db.records.add(newRecord)
+        const updatedRecords = [...records, { id: recordId, ...newRecord }]
+        setRecords(updatedRecords)
+
+        form.resetFields() // clear form
+        focusInput()
+    };
+
     const updateSeriesWithUnit = async ({ name, id: unitId }: { name: string, id: number }) => {
         // callback for unit creation.
         // update series with unitId
@@ -160,7 +197,7 @@ const SeriesDetails = () => {
                     {series ? (
                         <>
                             <Form.Item style={{ margin: '0' }}>
-                                <ManageSeries series={series} records={records} onClose={refreshData} />
+                                 <ManageSeries series={series} records={records} onClose={refreshData} />
                             </Form.Item>
                             <Form.Item style={{ margin: '0' }}>
                                 <ExportData series={series} records={records} />
@@ -192,7 +229,12 @@ const SeriesDetails = () => {
                                                 left: 56
                                             }}
                                         >
-                                            👈 nice.
+                                            <span
+                                                role="img"
+                                                aria-label="finger pointing"
+                                            >
+                                                👈
+                                            </span> nice.
                                         </Title>
                                         <Title
                                             level={4}

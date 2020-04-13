@@ -15,7 +15,7 @@ const { Title, Text } = Typography
 interface ManageSeriesProps {
     series: ISeries
     records?: IRecord[]
-    onClose: () => void
+    onClose?: () => void
 }
 export const ManageSeries = (props: ManageSeriesProps) => {
     const [modalVisible, setModalVisible] = useState<boolean>(false)
@@ -28,7 +28,6 @@ export const ManageSeries = (props: ManageSeriesProps) => {
         await db.series.delete(series.id)
 
         onClose()
-
     }
     const deleteRecords = (series: ISeries) => async (e: any) => {
         if (!series.id) {
@@ -38,7 +37,9 @@ export const ManageSeries = (props: ManageSeriesProps) => {
         onClose()
     }
     const onClose = () => {
-        props.onClose() // TEMP callback
+        if (props.onClose) {
+            props.onClose() // TEMP callback
+        }
         setModalVisible(false)
     }
     const buttonProps = {
