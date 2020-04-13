@@ -1,5 +1,5 @@
 import Dexie from 'dexie'
-import { IUnit } from './models/Unit'
+import { IUnit, Unit } from './models/Unit'
 import { Series, ISeries } from './models/Series'  
 import { IRecord } from './models/Record'
 
@@ -10,7 +10,6 @@ export class TrackerDatabase extends Dexie {
   
   constructor() {  
     super("TrackerDatabase");
-    console.log('local-db.ts constructor ran')
     
     //
     // Define tables and indexes
@@ -28,7 +27,8 @@ export class TrackerDatabase extends Dexie {
     // are these even needed?;
     this.records = this.table("records");
 
-     db.series.mapToClass(Series);
+     this.series.mapToClass(Series);
+     this.units.mapToClass(Unit)
   }
 }
 

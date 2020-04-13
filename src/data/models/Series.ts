@@ -6,7 +6,7 @@ export interface ISeries {
     id?: number
     name: string
     timestamp: string
-    unitId: IUnit['id']
+    unitId?: IUnit['id']
 }
 
 /* This class that is mapped to the series table.
@@ -24,7 +24,7 @@ export class Series {
     unit?: IUnit;   
     records?: IRecord[]
     
-    constructor(name: string, id?: number, timestamp?: string, unitId?: number, unitName?: string) {
+    constructor(name: string, unitName?: string, unitId?: number, id?: number, timestamp?: string) {
         // The constructor gets called for new & existing records, so input props need to be generic.
         // This feels weird, to have to handle both use cases with a bunch of `if` statements.
         // Will leave for now and see if the benifit of the class is worth the bad smell.
@@ -51,14 +51,16 @@ export class Series {
     }
     
     // helper method to fetch all the related data
-    async loadSeriesData() {
+    async loadSeriesData(): Promise<IRecord[]> {
         if (!this.id || !this.unitId) {
-            return
+            return []
         }
         [this.unit, this.records] = await Promise.all([
             db.units.where('id').equals(this.unitId).first(),
             db.records.where('seriesId').equals(this.id).toArray() // TODO - order by date
         ]);
+        return this.records || []
+
     }
 
 
@@ -68,7 +70,10 @@ export class Series {
             // this is not great. maybe move this logic to the Unit class?
             // make findOrCreate on Unit class?
             // super hacky - FIXME
+            let { unitName } = this
+            unitName = String(unitName)
             let unitId = this.unitId
+
             if (!unitId) { // new record, need to find or create Unit
                 let unit = await db.units.where('name').equals(String(this.unitName)).first()
                 if (unit) {
@@ -80,7 +85,7 @@ export class Series {
                 this.unitId = unitId
             }
             // Add or update ourselves
-            this.id = await db.series.put({...this, unitId});
+            this.id = await db.series.put({...this, unitId: 1});
         });
     }
 }
