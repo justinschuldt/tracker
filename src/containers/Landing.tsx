@@ -47,9 +47,9 @@ const Landing = () => {
                     <Typography>
                         <Title level={2}>simple habit tracking</Title>
                         <ul style={{ listStyle: 'none' }}>
-                            <li><span className="larger">👩‍🔬</span> decide what you want to track</li>
-                            <li><span className="larger">📋</span> use this app to log data</li>
-                            <li><span className="larger">📈</span> see charts about your behavior</li>
+                            <li><span role="img" aria-label="woman scientist">👩‍🔬</span> decide what you want to track</li>
+                            <li><span role="img" aria-label="clipboard">📋</span> use this app to log data</li>
+                            <li><span role="img" aria-label="chart upwards">📈</span> see charts about your behavior</li>
                         </ul>
                     </Typography>
                 </div>

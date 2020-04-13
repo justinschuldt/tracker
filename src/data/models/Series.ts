@@ -75,11 +75,11 @@ export class Series {
             let unitId = this.unitId
 
             if (!unitId) { // new record, need to find or create Unit
-                let unit = await db.units.where('name').equals(String(this.unitName)).first()
+                let unit = await db.units.where('name').equals(unitName).first()
                 if (unit) {
                     unitId = unit.id
                 } else {
-                    let newUnitId = await db.units.add(new Unit(String(this.unitName)))
+                    let newUnitId = await db.units.add(new Unit(unitName))
                     unitId = newUnitId
                 }
                 this.unitId = unitId
