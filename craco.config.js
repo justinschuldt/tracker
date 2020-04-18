@@ -1,7 +1,7 @@
 const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 const WebpackBar = require("webpackbar");
-const CracoAntDesignPlugin = require("craco-antd");
-const path = require("path");
+const darkTheme = require('@ant-design/dark-theme')
+const CracoLessPlugin = require("craco-less");
 
 // Don't open the browser during development
 process.env.BROWSER = "none";
@@ -18,14 +18,15 @@ module.exports = function({ env }) {
         },
         plugins: [
             {
-            plugin: CracoAntDesignPlugin,
-            options: {
-                customizeThemeLessPath: path.join(
-                __dirname,
-                "src/theme.less"
-                )
-            }
-            }
+                plugin: CracoLessPlugin,
+                options: {
+                    lessLoaderOptions: {
+                        modifyVars: darkTheme,
+                        javascriptEnabled: true
+                    }
+                },
+            },
+            
         ]
     };
 }
