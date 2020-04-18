@@ -49,74 +49,70 @@ const SeriesDetails = () => {
             inputEl.current.focus()
         }
     }
+    const resetState = () => {
+        setRecords([])
+        setSeries(undefined)
+        setUnitName(undefined)
+        setLoading(true)
+        forceUpdate({})
+    }
     useEffect(() => {
-        // setState(id)
-        const loadSeries = async (seriesId?: number | string) => {
-            setRecords([])
-            setSeries(undefined)
-            setUnitName(undefined)
-            setLoading(true)
-            forceUpdate({})
-            let series = await db.series.get(Number(seriesId))
-            if (!seriesId || !series) {
-                // no seriesId was passed in, see if there is a series to load
-                const allSeries = await db.series.toArray()
-                if (!allSeries || !allSeries[0]) {
-                    // nothing to load, send user to landing page
-                    history.push('/')
-                }
-                if (allSeries[0] && allSeries[0].id) {
-                    seriesId = allSeries[0].id
-                    series = allSeries[0]
-                    history.replace(`/series-details/${seriesId}`)
-                    loadSeries(seriesId)
-                }
-                return
+        // TODO - should proabbly move this to it's own component?
+        // this is the logic for evaluating the route param, since this the app index.
+        // lookup the string that was passed in, if it's not found in the db:
+        //   1) see if there are other series to load (existing user)
+        //   2) redirect to the landing page (new user/deleted only series)
+
+        const findSeries = async () => {
+            // no seriesId was passed in, see if there is a series to load
+            const allSeries = await db.series.toArray()
+            if (!allSeries || !allSeries[0]) {
+                // nothing to load, send user to landing page
+                history.push('/landing')
+            } else if (allSeries[0] && allSeries[0].id) {
+                // load one of the user's other series
+                const seriesId = allSeries[0].id
+                history.push(`/${seriesId}`)
             }
-            await loadAndSetSeries(series)
-    
-            if (inputEl && inputEl.current) {
-                inputEl.current.focus()
-            }
-    
         }
-        // setRecords([])
-        // setSeries(undefined)
-        // setUnitName(undefined)
-        // setLoading(true)
-        // forceUpdate({})
+        const loadSeries = async (seriesId?: number | string) => {
+            if (seriesId !== undefined && seriesId !== '') {
+                const series = await db.series.get(Number(seriesId))
+                if (series) {
+                    resetState()
+                    return await loadAndSetSeries(series)
+                }
+            }
+            return await findSeries()
+        }
         loadSeries(id)
     }, [id, history])
 
-    const refreshData = (newId?: string) => {
+    const refreshData = () => {
         // TODO cleanup this dupe logic, share with useEffect
-        const loadSeries = async (seriesId?: number | string) => {
-            setRecords([])
-            setSeries(undefined)
-            setUnitName(undefined)
-            setLoading(true)
-            forceUpdate({})
-            let series = await db.series.get(Number(seriesId))
-            if (!seriesId || !series) {
-                // no seriesId was passed in, see if there is a series to load
-                const allSeries = await db.series.toArray()
-                if (!allSeries || !allSeries[0]) {
-                    // nothing to load, send user to landing page
-                    history.push('/landing')
-                }
-                if (allSeries[0] && allSeries[0].id) {
-                    seriesId = allSeries[0].id
-                    series = allSeries[0]
-                    history.replace(`/${seriesId}`)
-                    loadSeries(seriesId)
-                }
-                return
+        const findSeries = async () => {
+            // no seriesId was passed in, see if there is a series to load
+            const allSeries = await db.series.toArray()
+            if (!allSeries || !allSeries[0]) {
+                // nothing to load, send user to landing page
+                history.push('/landing')
+            } else if (allSeries[0] && allSeries[0].id) {
+                // load one of the user's other series
+                const seriesId = allSeries[0].id
+                history.push(`/${seriesId}`)
             }
-            await loadAndSetSeries(series)
-            focusInput()
         }
-        const toLoad = newId ? newId : id
-        loadSeries(toLoad)
+        const loadSeries = async (seriesId?: number | string) => {
+            if (seriesId !== undefined && seriesId !== '') {
+                const series = await db.series.get(Number(seriesId))
+                if (series) {
+                    resetState()
+                    return await loadAndSetSeries(series)
+                }
+            }
+            return await findSeries()
+        }
+        loadSeries(id)
     }
 
     const onFinish = async (values: { amount?: string }) => {
