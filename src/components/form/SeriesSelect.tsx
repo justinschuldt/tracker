@@ -9,7 +9,7 @@ import { FormInstance } from 'antd/lib/form'
 const { Search } = Input
 
 interface SeriesSelectProps {
-  activeSeries: string
+  activeSeries?: number
   form: FormInstance
   width: number | string
 }
@@ -22,16 +22,23 @@ const SeriesSelect = (props: SeriesSelectProps) => {
   let history = useHistory()
 
   useEffect(() => {
-    fetchData(props.activeSeries)
-  }, [props.activeSeries])
+    if (props.activeSeries) {
+      // reset state 
+      setActiveSeries(undefined)
+      props.form.resetFields()
 
-  const fetchData = async (activeSeriesId: string) => {
+      //  fetch data and set to state
+      fetchData(props.activeSeries)
+    }
+  }, [props.activeSeries, props.form])
+
+  const fetchData = async (activeSeriesId: number) => {
     const series = await db.series.toArray()
     setSeries(series)
 
     const options = series.map(transformToOption)
 
-    const activeSeries = series.find(s => s.id === Number(activeSeriesId))
+    const activeSeries = series.find(s => s.id === activeSeriesId)
 
     if (activeSeries) {
       setActiveSeries(activeSeries)
@@ -68,6 +75,7 @@ const SeriesSelect = (props: SeriesSelectProps) => {
       <Form.Item
         name="seriesId"
         style={{ margin: '0 4px 0 0' }}
+        
       >
         <Select
           size="small"
@@ -97,7 +105,7 @@ const SeriesSelect = (props: SeriesSelectProps) => {
         />
       </Form.Item>
 
-    ) : <div style={{ width: props.width }}></div>
+    ) : <div style={{ width: props.width }}></div> // preserve layout while loading
   )
 }
 
