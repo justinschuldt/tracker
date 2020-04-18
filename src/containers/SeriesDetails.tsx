@@ -102,12 +102,12 @@ const SeriesDetails = () => {
                 const allSeries = await db.series.toArray()
                 if (!allSeries || !allSeries[0]) {
                     // nothing to load, send user to landing page
-                    history.push('/')
+                    history.push('/landing')
                 }
                 if (allSeries[0] && allSeries[0].id) {
                     seriesId = allSeries[0].id
                     series = allSeries[0]
-                    history.replace(`/series-details/${seriesId}`)
+                    history.replace(`/${seriesId}`)
                     loadSeries(seriesId)
                 }
                 return

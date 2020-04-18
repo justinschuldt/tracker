@@ -13,11 +13,11 @@ function App() {
   return (
       <Router>
         <Switch>
-          <Route path="/series-details/:id" >
-            <SeriesDetails />
-          </Route>
-          <Route path="/">
+          <Route exact path="/landing" >
             <Landing />
+          </Route>
+          <Route path="/:id?">
+            <SeriesDetails />
           </Route>
         </Switch>
       </Router>

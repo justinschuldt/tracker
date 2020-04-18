@@ -36,7 +36,7 @@ const Landing = () => {
             unitId
         }
         const seriesId = await db.series.add(newSeries)
-        history.push(`/series-details/${seriesId}`)
+        history.push(`/${seriesId}`)
     }
 
 

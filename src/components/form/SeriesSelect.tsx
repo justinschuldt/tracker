@@ -40,7 +40,7 @@ const SeriesSelect = (props: SeriesSelectProps) => {
   }
 
   function onChange(value: string) {
-    history.push(`/series-details/${value}`)
+    history.push(`/${value}`)
   }
   const onNameChange = (event: any) => {
     setNewSeriesName(event.target.value)
@@ -59,7 +59,7 @@ const SeriesSelect = (props: SeriesSelectProps) => {
       setActiveSeries({ id, name, timestamp })
       setNewSeriesName(undefined) // clear the input
       props.form.setFieldsValue({ seriesId: id })
-      history.push(`/series-details/${id}`)
+      history.push(`/${id}`)
     }
   };
 
