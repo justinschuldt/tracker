@@ -63,7 +63,7 @@ export const RecordsDynamicLineChart = (props: RecordsDynamicLineChartProps) => 
       const data2 = props.records.map(r => ({ ...r, amount: Number(r.amount) }))
       setRecords(data2)
       newChart.source(data2, defs);
-  
+
       newChart.axis('time', {
         label: function label(text: any, index: any, total: any) {
           const textCfg: { textAlign?: string } = {};
@@ -83,6 +83,9 @@ export const RecordsDynamicLineChart = (props: RecordsDynamicLineChartProps) => 
           animation: 'lineUpdate'
         }
       }).color(color)
+      .style({
+        lineWidth: 3
+      })
   
       newChart.point().position('timestamp*amount').shape('smooth')
         .style({
@@ -107,10 +110,8 @@ export const RecordsDynamicLineChart = (props: RecordsDynamicLineChartProps) => 
     addToChart(lastRecord)
   }, [props.records])
 
-
-
   return (
-    <div id="container">
+    <div id="container"  style={{ display: 'flex', justifyContent: 'center' }}>
       <canvas
         id="mountNode"
         height={props.height}
