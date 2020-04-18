@@ -29,7 +29,8 @@ const Landing = () => {
         if (!values.seriesName || !values.unitName) {
             return // shouldn't happen. for TS
         }
-        const unitId = await findOrCreateUnit(db, values.unitName)
+        const unitName = values.unitName.toLocaleLowerCase()
+        const unitId = await findOrCreateUnit(db, unitName)
         const newSeries = {
             name: values.seriesName,
             timestamp: new Date().toISOString(),

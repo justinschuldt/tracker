@@ -26,9 +26,8 @@ const SeriesDetails = () => {
     const history = useHistory()
 
     const loadAndSetSeries = async (newSeries: ISeries) => {
-        const { id, timestamp, name, unitId } = newSeries
         setSeries(newSeries)
-        const seriesClass = new Series(name, undefined, unitId, id, timestamp)
+        const seriesClass = new Series(newSeries.id, newSeries.unitId)
         const fetchedRecords = await seriesClass.loadSeriesData()
         if (seriesClass.unit) {
             setUnitName(seriesClass.unit.name)
