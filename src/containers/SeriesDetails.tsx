@@ -25,9 +25,9 @@ const SeriesDetails = () => {
     let { id } = useParams()
     const history = useHistory()
 
-    const loadAndSetSeries = async (series: ISeries) => {
-        const { id, timestamp, name, unitId } = series
-        setSeries(series)
+    const loadAndSetSeries = async (newSeries: ISeries) => {
+        const { id, timestamp, name, unitId } = newSeries
+        setSeries(newSeries)
         const seriesClass = new Series(name, undefined, unitId, id, timestamp)
         const fetchedRecords = await seriesClass.loadSeriesData()
         if (seriesClass.unit) {
@@ -134,7 +134,6 @@ const SeriesDetails = () => {
         setRecords(updatedRecords)
 
         form.resetFields() // clear form
-        focusInput()
     };
 
     const updateSeriesWithUnit = async ({ name, id: unitId }: { name: string, id: number }) => {
@@ -142,6 +141,7 @@ const SeriesDetails = () => {
         // update series with unitId
         await db.series.update(Number(id), { unitId })
         setUnitName(name)
+        focusInput()
     }
 
     return (
@@ -156,7 +156,7 @@ const SeriesDetails = () => {
                 >
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                         {series ? (
-                            <SeriesSelect width={140} activeSeries={String(series.id)} form={form} />
+                            <SeriesSelect width={140} activeSeries={series.id} form={form} />
                         ) : <div style={{ width: 140 }}></div>}
                         {unitName ? (
                             <Form.Item
@@ -165,6 +165,7 @@ const SeriesDetails = () => {
                                 style={{ maxWidth: 110, margin: '0 4px' }}
                             >
                                 <Input
+                                    type="number"
                                     size="small"
                                     ref={inputEl} // for auto-focus when the page loads
                                     suffix={unitName}
@@ -212,7 +213,7 @@ const SeriesDetails = () => {
                             <RecordsDynamicLineChart
                                 records={records}
                                 height={190}
-                                width={window.innerWidth}
+                                width={window.innerWidth*0.95}
                                 lineColor="rgba(6, 85, 231, .8)" // blue
                             />
                             {records.length === 1 ? (
@@ -223,7 +224,7 @@ const SeriesDetails = () => {
                                         <Title
                                             level={4}
                                             style={{
-                                                color: 'rgba(61, 61, 61, .3)',
+                                                color: 'rgba(240, 240, 240, .8)',
                                                 position: 'relative',
                                                 top: 24,
                                                 left: 56
@@ -239,7 +240,7 @@ const SeriesDetails = () => {
                                         <Title
                                             level={4}
                                             style={{
-                                                color: 'rgba(61, 61, 61, .3)',
+                                                color: 'rgba(240, 240, 240, .8)',
                                                 position: 'relative',
                                                 top: 16,
                                                 left: 80
@@ -251,12 +252,15 @@ const SeriesDetails = () => {
                                 </div>
                             ) : null}
                         </div> :
-                        <ChartDemo
-                            width={window.innerWidth}
+                        // maybe just show a chart with a static, 4-6 point chart (logo shape)?
+                        !loading ? <ChartDemo
+                            width={window.innerWidth*0.95}
                             height={190}
-                            lineColor="rgba(61, 61, 61, .3)"
+                            animated={false}
+                            lineColor="rgba(240, 240, 240, .1)"
                             overlay={`start your chart ☝!`}
-                        />
+                            overlayColor={'rgba(240, 240, 240, .8)'}
+                        /> : null
                     }
                 </div>
             </Spin>
