@@ -57,7 +57,7 @@ const SeriesSelect = (props: SeriesSelectProps) => {
     if (newSeriesName) {
       // add to db
       const timestamp = new Date().toISOString()
-      const name = String(newSeriesName)
+      const name = String(newSeriesName).toLocaleLowerCase()
       const id = await db.series.add({ name, timestamp })
       const newSeries = [...series, { id, name, timestamp }]
       setSeries(newSeries)

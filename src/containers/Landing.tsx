@@ -32,7 +32,7 @@ const Landing = () => {
         const unitName = values.unitName.toLocaleLowerCase()
         const unitId = await findOrCreateUnit(db, unitName)
         const newSeries = {
-            name: values.seriesName,
+            name: values.seriesName.toLocaleLowerCase(),
             timestamp: new Date().toISOString(),
             unitId
         }
