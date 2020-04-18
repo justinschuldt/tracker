@@ -81,7 +81,7 @@ const Landing = () => {
                 <div style={{ minHeight: 200, paddingRight: '2em' }}>
                     <ChartDemo
                         height={170}
-                        width={window.innerWidth*0.75}
+                        width={window.innerWidth*0.8}
                         showForm
                         animated
                         lineColor={"rgba(6, 85, 231, .6)"}
