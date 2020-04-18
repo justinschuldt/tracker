@@ -9,16 +9,19 @@ const { Title } = Typography;
 const wait = (ms: number) => new Promise(res => setTimeout(res, ms))
 
 // data for chart-updating demo
-const sampleData = [1, 2, 1, 3, 2, 4, 2, 3, 4, 6, 7, 9, 13]
+const sampleData = [0.5, 4, 1.5, 7]
 
-interface ChartDempProps {
+interface ChartDemoProps {
     height?: number | string
     width?: number | string
     showForm?: boolean
+    values?: number[]
     lineColor?: string
     overlay?: string
+    overlayColor?: string
+    animated?: boolean
 }
-export const ChartDemo = (props: ChartDempProps) => {
+export const ChartDemo = (props: ChartDemoProps) => {
     const [form] = Form.useForm();
     const [, forceUpdate] = useState()
     const [loading, setLoading] = useState<boolean>(false)
@@ -26,15 +29,15 @@ export const ChartDemo = (props: ChartDempProps) => {
     const [recordIdCounter, setRecordIdCounter] = useState<number>(0)
     const [showTryMePopover, setShowTryMePopover] = useState<boolean>(false)
 
-
-
     const addRecord = (recordAmount: number, recordId: number) => {
         // creates a  record object and adds it to state.
         // created to be used in a map function, recordId is the index
+        const now = new Date()
+        now.setDate( now.getDate() + recordId );
         const newRecord = {
             id: recordId,
             seriesId: 1,
-            timestamp: new Date().toISOString(),
+            timestamp: now.toISOString(),
             amount: recordAmount
         }
         setRecords(r =>[...r, newRecord])
@@ -63,19 +66,28 @@ export const ChartDemo = (props: ChartDempProps) => {
                     setLoading(false)
                 }, (intervalMilliseconds * (amountIndex + 1)))
         forceUpdate({}) // to disable form button
-        const demoCycleMilliseconds = 4000
-        const [firstRecord, ...demoValues] = sampleData
-        addRecord(firstRecord, 0) // 
-        const intervals = demoValues.map(mockedInteractionDemo(demoCycleMilliseconds))
 
-        // show "Try me!" popover after all the mockedInteractionDemos
-        const showPopoverDwell = (sampleData.length + 1) * demoCycleMilliseconds
-        intervals.push(setInterval(() => setShowTryMePopover(true), showPopoverDwell))
+        let intervals: NodeJS.Timeout[] | undefined = undefined
+        const values = props.values && props.values.length >= 1 ? props.values : sampleData
+        if (props.animated === true) {
+            const demoCycleMilliseconds = 4000
+            const [firstRecord, ...demoValues] = values
+            addRecord(firstRecord, 0) // 
+            intervals = demoValues.map(mockedInteractionDemo(demoCycleMilliseconds))
+    
+            // show "Try me!" popover after all the mockedInteractionDemos
+            const showPopoverDwell = values.length * demoCycleMilliseconds
+            intervals.push(setInterval(() => setShowTryMePopover(true), showPopoverDwell))
+        } else {
+            values.map(addRecord)
+        }
 
         return function cleanup() {
-            intervals.map(clearInterval) // use useInterval?
+            if (intervals) {
+                intervals.map(clearInterval) // use utils.ts useInterval?
+            }
         }
-    }, [form])
+    }, [form, props.animated, props.values])
 
 
     const onFinish = (values: { amount?: string }) => {
@@ -91,7 +103,13 @@ export const ChartDemo = (props: ChartDempProps) => {
     return (
         <>
             {props.showForm ? (
-                <Form form={form} name="demo_flow" layout="inline" onFinish={onFinish} >
+                <Form
+                    form={form}
+                    name="demo_flow"
+                    layout="inline"
+                    style={{ display: 'flex', justifyContent: 'center' }}
+                    onFinish={onFinish}
+                >
                     <Form.Item
                         name="seriesName"
                         style={{ margin: '0 8px' }}
@@ -116,6 +134,7 @@ export const ChartDemo = (props: ChartDempProps) => {
                             style={{ maxWidth: 70, margin: '0 8px' }}
                         >
                             <Input
+                                type="number"
                                 size="small"
                                 placeholder={"miles"}
                             />
@@ -153,7 +172,7 @@ export const ChartDemo = (props: ChartDempProps) => {
                     {props.overlay ? (
                         <div id="overlay" className="overlay-flex-container" >
                             <Typography >
-                                <Title level={4} style={{ color: props.lineColor }} >
+                                <Title level={4} style={{ color: props.overlayColor }} >
                                     {props.overlay}
                                 </Title>
                             </Typography>
