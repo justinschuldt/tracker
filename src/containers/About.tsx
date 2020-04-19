@@ -28,8 +28,8 @@ export const About = () => {
                 </Typography>
             </div>
             <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-                {/* show a link to series-details, incase an existing user ends up here */}
-                <Link to={`/series-details/`} >Go to data</Link>
+                {/* show a link to SeriesDetails, incase an existing user ends up here */}
+                <Link to={`/`} >Go to data</Link>
             </div>
 
     </div>

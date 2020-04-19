@@ -41,7 +41,7 @@ export const UnitSelect = (props: UnitSelectProps) => {
       // add to db
       const iso = new Date().toISOString()
       const newUnit = {
-        name: String(newUnitName),
+        name: String(newUnitName).toLocaleLowerCase(),
         timestamp: iso,
       }
       let newUnitId = await db.units.add(newUnit)

@@ -14,6 +14,9 @@ export const sampleData: [string, string][] = [
     ['walking', 'miles'],
 ]
 export const SeriesInput = () => {
+    // this component is a form  with two inputs.
+    // sets of placeholder values cycle on a regular interval.
+    // placeholder values are held in state, cycled by "useInterval" hook.
     const [seriesPlaceholder, setSeriesPlaceholder] = useState<string>(sampleData[0][0])
     const [unitPlaceholder, setUnitPlaceholder] = useState<string>(sampleData[0][1])
 

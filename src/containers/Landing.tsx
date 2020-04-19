@@ -22,87 +22,118 @@ const Landing = () => {
 
     useEffect(() => {
         forceUpdate({}) // force form validation to disable submit button
-        loadSeries() // load series for link to series-details logic
+        loadSeries() // load series for link to SeriesDetails logic
     }, [])
 
     const onFinish = async (values: { seriesName?: string, unitName?: string }) => {
         if (!values.seriesName || !values.unitName) {
             return // shouldn't happen. for TS
         }
-        const unitId = await findOrCreateUnit(db, values.unitName)
+        const unitName = values.unitName.toLocaleLowerCase()
+        const unitId = await findOrCreateUnit(db, unitName)
         const newSeries = {
-            name: values.seriesName,
+            name: values.seriesName.toLocaleLowerCase(),
             timestamp: new Date().toISOString(),
             unitId
         }
         const seriesId = await db.series.add(newSeries)
-        history.push(`/series-details/${seriesId}`)
+        history.push(`/${seriesId}`)
     }
-
 
     return (
         <>
-            <div style={{ marginTop: '8px' }}>
-                <div className="indent" >
+            <div style={{ margin: '1em 0' }}>
                     <Typography>
-                        <Title level={2}>simple habit tracking</Title>
-                        <ul style={{ listStyle: 'none' }}>
-                            <li><span role="img" aria-label="woman scientist">👩‍🔬</span> decide what you want to track</li>
-                            <li><span role="img" aria-label="clipboard">📋</span> use this app to log data</li>
-                            <li><span role="img" aria-label="chart upwards">📈</span> see charts about your behavior</li>
-                        </ul>
-                    </Typography>
-                </div>
-            </div>
-            <div style={{ marginTop: '8px' }}>
-                <div className="indent">
-                    <Typography>
-                        <Title level={2}>demo</Title>
-                    </Typography>
-                    <div className="indent">
-                        <div style={{ minHeight: 200 }}>
-                            <ChartDemo height={170} showForm lineColor={"rgba(6, 85, 231, .6)"} />
+                        <div className="indent" >
+                            <Title level={2} style={{ marginBottom: '0.2em' }}>simple habit tracking</Title>
                         </div>
-                    </div>
-                </div>
+                        <div style={{display: 'flex', justifyContent: 'center'}}>
+                            <div style={{display: 'block', justifyContent: 'left'}}>
+                                <div>
+                                    <span className="emoji" role="img" aria-label="woman scientist">👩‍🔬</span>
+                                    {` `}
+                                    decide what you want to track
+                                </div>
+                                <div>
+                                    <span className="emoji" role="img" aria-label="clipboard">📋</span>
+                                    {` `}
+                                    use this app to log data
+                                </div>
+                                <div>
+                                    <span className="emoji" role="img" aria-label="chart upwards">📈</span>
+                                    {` `}
+                                    see charts about your behavior
+                                </div>
+                            </div>
+                        </div>
+                    </Typography>
             </div>
-            <div style={{ marginTop: '8px' }}>
+
+            <div style={{ margin: '1em 0' }}>
                 <div className="indent">
                     <Typography>
-                        <Title level={2}>get started</Title>
-                    </Typography>
-                    <div className="indent">
-                        <Typography>
-                            <Title level={4}>what do you want to track?</Title>
-                        </Typography>
+                        <Title level={2} style={{ marginBottom: '0.2em' }}>log data, see trends</Title>
                         <div className="indent">
-                            <Form form={form} name="landing_series_creation" layout="inline" onFinish={onFinish} >
-                                <SeriesInput />
-                                <Form.Item shouldUpdate={true} style={{ margin: '0 8px' }}>
-                                    {() => (
-                                        <Button
-                                            type="primary"
-                                            htmlType="submit"
-                                            size="small"
-                                            shape="round"
-                                            disabled={
-                                                !form.isFieldsTouched(true) ||
-                                                Boolean(form.getFieldsError().filter(({ errors }) => errors.length).length)
-                                            }
-                                        >
-                                            Start
-                                        </Button>
-                                    )}
-                                </Form.Item>
-                            </Form>
+                            <Title level={4}>looks like this:</Title>
                         </div>
-                    </div>
+                    </Typography>
+
                 </div>
+                <div style={{ minHeight: 200, paddingRight: '2em' }}>
+                    <ChartDemo
+                        height={170}
+                        width={window.innerWidth*0.8}
+                        showForm
+                        animated
+                        lineColor={"rgba(6, 85, 231, .6)"}
+                        overlay={'DEMO'}
+                        overlayColor={'rgba(240, 240, 240, .3)'}
+                    />
+                </div>
+            </div>
+
+            <div style={{ margin: '1em 0' }}>
+                <div className="indent">
+                    <Typography>
+                        <Title level={2} style={{ marginBottom: '0.2em' }}>get started</Title>
+                        <div className="indent">
+                            <Title level={4}>what do you want to track?</Title>
+                        </div>
+                    </Typography>
+                </div>
+                <Form
+                    form={form}
+                    name="landing_series_creation"
+                    layout="inline"
+                    style={{display: 'flex', justifyContent: 'center'}}
+                    onFinish={onFinish}
+                >
+                    <SeriesInput />
+                    <Form.Item shouldUpdate={true} style={{ margin: '0 8px' }}>
+                        {() => (
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                size="small"
+                                shape="round"
+                                disabled={
+                                    !form.isFieldsTouched(true) ||
+                                    Boolean(form.getFieldsError().filter(({ errors }) => errors.length).length)
+                                }
+                            >
+                                Start
+                            </Button>
+                        )}
+                    </Form.Item>
+                </Form>
             </div>
             {series && series[0] && series[0].id ? (
+                // for returning users
                 <div style={{ marginTop: 24, display: 'flex', justifyContent: 'center' }}>
-                    {/* show a link to series-details, incase an existing user ends up here */}
-                    <Link to={`/series-details/${series[0].id}`} >Go to records</Link>
+                    {/* show a link to SeriesDetails, incase an existing user ends up here */}
+                    <Button type="primary" ghost style={{width: '70%'}}>
+                        <Link to={`/${series[0].id}`} >Go to your records</Link>
+                    </Button>
                 </div>
             ) : null}
         </>
