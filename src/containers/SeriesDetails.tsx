@@ -140,7 +140,7 @@ const SeriesDetails = () => {
     }
 
     return (
-        <div style={{ marginTop: '8px' }} >
+        <div style={{ paddingTop: '1em' }} >
             <Spin spinning={loading} style={{ minHeight: 240 }}>
                 <Form
                     form={form}
