@@ -17,6 +17,8 @@
     "antd": "^4.1.0",
     "craco-antd": "^1.14.1",
     "dexie": "^2.0.4",
+    "google-auth-library": "^6.0.0",
+    "googleapis": "^50.0.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-router-dom": "^5.1.2",

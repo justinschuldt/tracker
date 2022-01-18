@@ -9,10 +9,15 @@ import {
 import Landing from './containers/Landing'
 import SeriesDetails from './containers/SeriesDetails'
 
+const AuthCallback = () => <h1>auth</h1>
+
 function App() {
   return (
       <Router>
         <Switch>
+        <Route exact path="/auth" >
+            <AuthCallback />
+          </Route>
           <Route exact path="/landing" >
             <Landing />
           </Route>

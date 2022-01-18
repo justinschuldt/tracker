@@ -11,6 +11,7 @@ import { UnitSelect } from '../components/form/UnitSelect';
 import { ChartDemo } from '../components/chart/ChartDemo';
 import { ExportData } from '../components/modal/ExportData';
 import { ManageSeries } from '../components/modal/ManageSeries'
+import { SheetsSync } from '../components/modal/SheetsSync'
 
 const { Title } = Typography
 
@@ -197,6 +198,9 @@ const SeriesDetails = () => {
                             </Form.Item>
                             <Form.Item style={{ margin: '0' }}>
                                 <ExportData series={series} records={records} />
+                            </Form.Item>
+                            <Form.Item style={{ margin: '0' }}>
+                                <SheetsSync series={series} records={records} />
                             </Form.Item>
                         </>
                     ) : null}
